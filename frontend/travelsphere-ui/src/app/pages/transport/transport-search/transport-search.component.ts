@@ -37,7 +37,7 @@ import { TransportService } from '../../../services/transport.service';
             <p>{{ r.departureTime | date:'short' }} — {{ r.arrivalTime | date:'short' }}</p>
             <div style="display:flex;justify-content:space-between;align-items:center">
               <span style="font-size:1.3rem;font-weight:700;color:var(--primary)">₹{{ r.price | number }}</span>
-              <button mat-raised-button color="primary">Book</button>
+              <button mat-raised-button color="primary" [routerLink]="['/transport/booking', r.id]">Book</button>
             </div>
           </mat-card-content>
         </mat-card>
