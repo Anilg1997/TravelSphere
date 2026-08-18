@@ -19,6 +19,18 @@
   --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* ── Editorial travel palette (landing page) ───────────── */
+  --cream: #fbf7f1;
+  --sand: #ede0ce;
+  --clay: #c05b33;
+  --clay-deep: #9e4423;
+  --amber: #e9b44c;
+  --teal: #1e4b47;
+  --teal-soft: #2f6a63;
+  --ink: #2b2420;
+  --ink-muted: #7a6e63;
+  --serif: 'Fraunces', Georgia, 'Times New Roman', serif;
 }
 
 * { box-sizing: border-box; }

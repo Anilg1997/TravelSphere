@@ -1,12 +1,13 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { NgFor, NgIf, DatePipe } from '@angular/common';
+import { first } from 'rxjs';
 
 
 interface ChatMessage {
@@ -79,14 +80,25 @@ interface ChatMessage {
     @keyframes bounce { 0%,80%,100% { transform: scale(0); } 40% { transform: scale(1); } }
   `]
 })
-export class AiChatComponent {
+export class AiChatComponent implements OnInit {
   private fb = inject(FormBuilder);
+  private route = inject(ActivatedRoute);
 
   messages: ChatMessage[] = [
     { role: 'assistant', content: '👋 Hello! I\'m your TravelSphere AI assistant. Ask me about destinations, itineraries, travel tips, or anything travel-related!', timestamp: new Date() },
   ];
   loading = false;
   messageCtrl = this.fb.control('');
+
+  ngOnInit() {
+    // Support ?q=… from the landing-page hero card: prefill & auto-send
+    this.route.queryParamMap.pipe(first()).subscribe((params) => {
+      const q = (params.get('q') || '').trim();
+      if (!q) return;
+      this.messageCtrl.setValue(q);
+      setTimeout(() => this.sendMessage(), 500);
+    });
+  }
 
   sendMessage() {
     const content = this.messageCtrl.value?.trim();

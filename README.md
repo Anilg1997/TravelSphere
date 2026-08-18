@@ -486,7 +486,7 @@ travelsphere-nexus/
 
 | Route | Page | Auth | Description |
 |-------|------|:----:|-------------|
-| `/home` | Home | - | Hero, service cards, stats, AI CTA |
+| `/home` | Home | - | Hero slideshow, AI planning card, service cards, demo video, stats, AI CTA |
 | `/search` | Global Search | - | Cross-service search |
 | `/login` | Login | - | JWT authentication |
 | `/register` | Register | - | User registration |
@@ -528,7 +528,7 @@ travelsphere-nexus/
 
 | Page | Preview |
 |------|---------|
-| **Home** — Hero with gradient background, global search, service cards, AI CTA | ![Home](screenshots/home.svg) |
+| **Home** — Full-bleed hero slideshow, chat-first AI planning card, trust bar, service cards, demo video, stats, AI CTA | ![Home](screenshots/home.svg) |
 | **Search Results** — Global search across flights, hotels, packages, cars, insurance | ![Search](screenshots/search.svg) |
 
 ### ✈️ Travel Services

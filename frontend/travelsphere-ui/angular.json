@@ -31,7 +31,8 @@
             "tsConfig": "tsconfig.app.json",
             "assets": [
               { "glob": "**/*", "input": "public", "output": "/" },
-              { "glob": "favicon.ico", "input": "src", "output": "/" }
+              { "glob": "favicon.ico", "input": "src", "output": "/" },
+              { "glob": "**/*", "input": "src/assets", "output": "/assets" }
             ],
             "styles": [
               "@angular/material/prebuilt-themes/indigo-pink.css",
@@ -43,7 +44,7 @@
             "production": {
               "budgets": [
                 { "type": "initial", "maximumWarning": "1mb", "maximumError": "2mb" },
-                { "type": "anyComponentStyle", "maximumWarning": "4kb", "maximumError": "8kb" }
+                { "type": "anyComponentStyle", "maximumWarning": "8kb", "maximumError": "12kb" }
               ],
               "outputHashing": "all"
             },
