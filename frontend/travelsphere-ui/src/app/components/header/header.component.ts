@@ -30,7 +30,7 @@ import { Router } from '@angular/router';
           <a mat-button routerLink="/cars" routerLinkActive="active-link">Cars</a>
           <a mat-button routerLink="/packages" routerLinkActive="active-link">Packages</a>
           <a mat-button routerLink="/insurance" routerLinkActive="active-link">Insurance</a>
-          <a mat-button routerLink="/ai/chat" routerLinkActive="active-link">AI Travel</a>
+          <a mat-button routerLink="/ai/agent" routerLinkActive="active-link">AI Agent</a>
         </nav>
 
         <div class="header-actions">

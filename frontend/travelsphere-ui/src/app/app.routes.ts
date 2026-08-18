@@ -7,6 +7,7 @@ export const routes: Routes = [
   // Auth
   { path: 'login', loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent) },
   { path: 'register', loadComponent: () => import('./pages/register/register.component').then(m => m.RegisterComponent) },
+  { path: 'enable-location', loadComponent: () => import('./components/location-permission/location-permission.component').then(m => m.LocationPermissionComponent) },
 
   // Main
   { path: 'home', loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent) },
@@ -47,8 +48,12 @@ export const routes: Routes = [
 
   // AI Agent
   { path: 'ai/chat', loadComponent: () => import('./pages/ai/ai-chat/ai-chat.component').then(m => m.AiChatComponent) },
+  { path: 'ai/agent', loadComponent: () => import('./pages/ai/ai-agent/ai-agent.component').then(m => m.AiAgentComponent) },
   { path: 'ai/plan-trip', loadComponent: () => import('./pages/ai/trip-planner/trip-planner.component').then(m => m.TripPlannerComponent) },
   { path: 'ai/recommendations', loadComponent: () => import('./pages/ai/recommendations/recommendations.component').then(m => m.RecommendationsComponent), canActivate: [authGuard] },
+
+  // Journey Tracker
+  { path: 'journey-tracker', loadComponent: () => import('./pages/journey/journey-tracker.component').then(m => m.JourneyTrackerComponent) },
 
   // User
   { path: 'profile', loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent), canActivate: [authGuard] },

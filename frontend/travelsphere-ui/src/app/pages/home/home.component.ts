@@ -98,8 +98,8 @@ import { VideoSectionComponent } from './video-section.component';
             <div class="ai-cta-text">
               <h2>Meet the TravelSphere AI</h2>
               <p>One conversation plans the whole journey — transport, stay, food, activities and the way home. Ask for changes, it re-plans live.</p>
-              <button mat-raised-button color="accent" class="cta-button" routerLink="/ai/chat">
-                <mat-icon>chat</mat-icon> Chat with AI
+              <button mat-raised-button color="accent" class="cta-button" routerLink="/ai/agent">
+                <mat-icon>chat</mat-icon> Chat with AI Agent
               </button>
               <button mat-raised-button class="cta-button" style="margin-left:12px;background:white;color:var(--teal)" routerLink="/ai/plan-trip">
                 <mat-icon>edit</mat-icon> Plan a Trip
@@ -328,6 +328,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   startPlanning(prompt: string) {
     const q = (prompt || '').trim();
-    this.router.navigate(['/ai/chat'], q ? { queryParams: { q } } : undefined);
+    this.router.navigate(['/ai/agent'], q ? { queryParams: { q } } : undefined);
   }
 }

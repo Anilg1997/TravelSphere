@@ -99,7 +99,10 @@ export class RegisterComponent {
     this.error = '';
 
     this.authService.register(this.registerForm.getRawValue() as any).subscribe({
-      next: () => this.router.navigate(['/home']),
+      next: () => {
+        // New registration → show location permission
+        this.router.navigate(['/enable-location']);
+      },
       error: (err) => {
         this.error = err.error?.error || 'Registration failed. Please try again.';
         this.loading = false;

@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NgIf } from '@angular/common';
+import { LocationPermissionComponent } from '../../components/location-permission/location-permission.component';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -83,7 +84,14 @@ export class LoginComponent {
     this.error = '';
 
     this.authService.login(this.loginForm.getRawValue()).subscribe({
-      next: () => this.router.navigate(['/home']),
+      next: () => {
+        // First-time login → show location permission
+        if (!localStorage.getItem('travelsphere_location_enabled')) {
+          this.router.navigate(['/enable-location']);
+        } else {
+          this.router.navigate(['/home']);
+        }
+      },
       error: (err) => {
         this.error = err.error?.error || 'Invalid email or password';
         this.loading = false;
