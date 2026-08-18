@@ -1,0 +1,149 @@
+{
+  "name": "TravelSphere - Booking Confirmation Flow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "travelsphere/booking-confirmation",
+        "responseMode": "onReceived",
+        "responseData": "allEntries"
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"eventType\"]}}",
+              "operation": "equal",
+              "value2": "BOOKING_CREATED"
+            }
+          ]
+        }
+      },
+      "id": "check-event-type",
+      "name": "Check Event Type",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [470, 300]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "bookingRef",
+              "value": "={{$json[\"bookingRef\"]}}"
+            },
+            {
+              "name": "userId",
+              "value": "={{$json[\"userId\"]}}"
+            },
+            {
+              "name": "serviceType",
+              "value": "={{$json[\"serviceType\"]}}"
+            },
+            {
+              "name": "destination",
+              "value": "={{$json[\"data\"][\"destination\"]}}"
+            },
+            {
+              "name": "travelDate",
+              "value": "={{$json[\"data\"][\"travelDate\"]}}"
+            },
+            {
+              "name": "totalAmount",
+              "value": "={{$json[\"data\"][\"totalAmount\"]}}"
+            },
+            {
+              "name": "travelers",
+              "value": "={{$json[\"data\"][\"travelers\"]}}"
+            }
+          ]
+        }
+      },
+      "id": "prepare-data",
+      "name": "Prepare Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [690, 200]
+    },
+    {
+      "parameters": {
+        "fromEmail": "bookings@travelsphere.com",
+        "toEmail": "={{$json[\"userId\"]}}@placeholder.com",
+        "subject": "🎉 Booking Confirmed - {{$json[\"bookingRef\"]}} | TravelSphere",
+        "html": "<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px'><div style='background:linear-gradient(135deg,#1e4b47,#2f6a63);padding:30px;border-radius:12px 12px 0 0;text-align:center'><h1 style='color:white;margin:0'>🌍 TravelSphere</h1><p style='color:rgba(255,255,255,0.9);margin:8px 0 0'>Booking Confirmation</p></div><div style='background:#fff;padding:30px;border:1px solid #e8e4de'><h2 style='color:#1e4b47'>Your trip is booked! 🎉</h2><p>Hi traveler, your booking has been confirmed.</p><div style='background:#f4f1ec;padding:16px;border-radius:10px;margin:20px 0'><p><strong>Booking Ref:</strong> {{$json[\"bookingRef\"]}}</p><p><strong>Destination:</strong> {{$json[\"destination\"]}}</p><p><strong>Travel Date:</strong> {{$json[\"travelDate\"]}}</p><p><strong>Travelers:</strong> {{$json[\"travelers\"]}}</p><p><strong>Total Amount:</strong> ₹{{$json[\"totalAmount\"]}}</p></div><p>You will receive a detailed itinerary shortly. Track your journey in the TravelSphere app.</p><hr style='border:none;border-top:1px solid #e8e4de;margin:20px 0'><p style='color:#7a6e63;font-size:12px'>This email was sent by TravelSphere. Do not share this email with anyone.</p></div></div>"
+      },
+      "id": "send-booking-email",
+      "name": "Send Booking Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [910, 200]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "status",
+              "value": "success"
+            },
+            {
+              "name": "message",
+              "value": "Booking confirmation email sent for {{$json[\"bookingRef\"]}}"
+            },
+            {
+              "name": "bookingRef",
+              "value": "={{$json[\"bookingRef\"]}}"
+            }
+          ]
+        }
+      },
+      "id": "success-response",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [1130, 200]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "status",
+              "value": "skipped"
+            },
+            {
+              "name": "message",
+              "value": "Event type not BOOKING_CREATED"
+            }
+          ]
+        }
+      },
+      "id": "skip-response",
+      "name": "Skip",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [690, 420]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": { "main": [[{ "node": "Check Event Type", "type": "main", "index": 0 }]] },
+    "Check Event Type": {
+      "main": [
+        [{ "node": "Prepare Data", "type": "main", "index": 0 }],
+        [{ "node": "Skip", "type": "main", "index": 0 }]
+      ]
+    },
+    "Prepare Data": { "main": [[{ "node": "Send Booking Email", "type": "main", "index": 0 }]] },
+    "Send Booking Email": { "main": [[{ "node": "Success Response", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "travelsphere" }, { "name": "booking" }]
+}

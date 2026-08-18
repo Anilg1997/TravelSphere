@@ -75,6 +75,7 @@ export const routes: Routes = [
   { path: 'admin/fraud-alerts', loadComponent: () => import('./pages/admin/fraud-alerts/fraud-alerts.component').then(m => m.FraudAlertsComponent), canActivate: [authGuard] },
   { path: 'admin/tickets', loadComponent: () => import('./pages/admin/support-tickets/support-tickets.component').then(m => m.SupportTicketsComponent), canActivate: [authGuard] },
   { path: 'admin/system-health', loadComponent: () => import('./pages/admin/system-health/system-health.component').then(m => m.SystemHealthComponent), canActivate: [authGuard] },
+  { path: 'admin/n8n-workflows', loadComponent: () => import('./pages/admin/n8n-workflows/n8n-workflows.component').then(m => m.N8nWorkflowsComponent), canActivate: [authGuard] },
 
   { path: '**', redirectTo: '/home' },
 ];

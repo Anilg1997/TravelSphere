@@ -1,0 +1,194 @@
+{
+  "name": "TravelSphere - Journey Tracking Flow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "travelsphere/journey-update",
+        "responseMode": "onReceived",
+        "responseData": "allEntries"
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"eventType\"]}}",
+              "operation": "equal",
+              "value2": "JOURNEY_UPDATE"
+            }
+          ]
+        }
+      },
+      "id": "check-journey-event",
+      "name": "Check Journey Event",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [470, 300]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "bookingRef", "value": "={{$json[\"bookingRef\"]}}" },
+            { "name": "userId", "value": "={{$json[\"userId\"]}}" },
+            { "name": "currentLocation", "value": "={{$json[\"data\"][\"currentLocation\"]}}" },
+            { "name": "nextStop", "value": "={{$json[\"data\"][\"nextStop\"]}}" },
+            { "name": "eta", "value": "={{$json[\"data\"][\"eta\"]}}" },
+            { "name": "status", "value": "={{$json[\"data\"][\"status\"]}}" },
+            { "name": "latitude", "value": "={{$json[\"data\"][\"latitude\"]}}" },
+            { "name": "longitude", "value": "={{$json[\"data\"][\"longitude\"]}}" }
+          ]
+        }
+      },
+      "id": "prepare-journey-data",
+      "name": "Prepare Journey Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [690, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"status\"]}}",
+              "operation": "equal",
+              "value2": "arrived"
+            }
+          ]
+        }
+      },
+      "id": "check-arrival",
+      "name": "Check if Arrived",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [910, 200]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "notificationTitle", "value": "🎉 You've Arrived!" },
+            { "name": "notificationMessage", "value": "Welcome to {{$json[\"nextStop\"]}}! Your hotel is ready for check-in." }
+          ]
+        }
+      },
+      "id": "arrival-notification",
+      "name": "Arrival Notification",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [1130, 100]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "notificationTitle", "value": "📍 Journey Update" },
+            { "name": "notificationMessage", "value": "Currently at {{$json[\"currentLocation\"]}}. Next stop: {{$json[\"nextStop\"]}}. ETA: {{$json[\"eta\"]}}" }
+          ]
+        }
+      },
+      "id": "progress-notification",
+      "name": "Progress Notification",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [1130, 340]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:8090/api/v1/notifications/send",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParametersJson": "={\n  \"userId\": \"{{$json[\"userId\"]}}\",\n  \"type\": \"JOURNEY\",\n  \"channel\": \"PUSH\",\n  \"title\": \"{{$json[\"notificationTitle\"]}}\",\n  \"message\": \"{{$json[\"notificationMessage\"]}}\"\n}"
+      },
+      "id": "send-push-notification",
+      "name": "Send Push Notification",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1350, 220]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:8080/api/v1/journey/update-location",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParametersJson": "={\n  \"bookingRef\": \"{{$json[\"bookingRef\"]}}\",\n  \"latitude\": {{$json[\"latitude\"]}},\n  \"longitude\": {{$json[\"longitude\"]}},\n  \"currentLocation\": \"{{$json[\"currentLocation\"]}}\",\n  \"nextStop\": \"{{$json[\"nextStop\"]}}\",\n  \"eta\": \"{{$json[\"eta\"]}}\"\n}"
+      },
+      "id": "update-journey-api",
+      "name": "Update Journey API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1350, 420]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "status", "value": "success" },
+            { "name": "message", "value": "Journey update processed" }
+          ]
+        }
+      },
+      "id": "success-response",
+      "name": "Success",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [1570, 320]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "status", "value": "skipped" }
+          ]
+        }
+      },
+      "id": "skip-response",
+      "name": "Skip",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [690, 420]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": { "main": [[{ "node": "Check Journey Event", "type": "main", "index": 0 }]] },
+    "Check Journey Event": {
+      "main": [
+        [{ "node": "Prepare Journey Data", "type": "main", "index": 0 }],
+        [{ "node": "Skip", "type": "main", "index": 0 }]
+      ]
+    },
+    "Prepare Journey Data": { "main": [[{ "node": "Check if Arrived", "type": "main", "index": 0 }]] },
+    "Check if Arrived": {
+      "main": [
+        [{ "node": "Arrival Notification", "type": "main", "index": 0 }],
+        [{ "node": "Progress Notification", "type": "main", "index": 0 }]
+      ]
+    },
+    "Arrival Notification": { "main": [[{ "node": "Send Push Notification", "type": "main", "index": 0 }]] },
+    "Progress Notification": { "main": [[{ "node": "Send Push Notification", "type": "main", "index": 0 }]] },
+    "Send Push Notification": { "main": [[{ "node": "Update Journey API", "type": "main", "index": 0 }]] },
+    "Update Journey API": { "main": [[{ "node": "Success", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "travelsphere" }, { "name": "journey" }]
+}

@@ -1,0 +1,161 @@
+{
+  "name": "TravelSphere - Payment Processing Flow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "travelsphere/payment-processing",
+        "responseMode": "onReceived",
+        "responseData": "allEntries"
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"eventType\"]}}",
+              "operation": "equal",
+              "value2": "PAYMENT_COMPLETED"
+            }
+          ]
+        }
+      },
+      "id": "check-payment",
+      "name": "Check Payment Event",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [470, 300]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "paymentRef",
+              "value": "={{$json[\"paymentRef\"]}}"
+            },
+            {
+              "name": "bookingRef",
+              "value": "={{$json[\"bookingRef\"]}}"
+            },
+            {
+              "name": "userId",
+              "value": "={{$json[\"userId\"]}}"
+            },
+            {
+              "name": "amount",
+              "value": "={{$json[\"data\"][\"finalAmount\"]}}"
+            },
+            {
+              "name": "currency",
+              "value": "={{$json[\"data\"][\"currency\"]}}"
+            },
+            {
+              "name": "paymentMethod",
+              "value": "={{$json[\"data\"][\"paymentMethod\"]}}"
+            }
+          ]
+        }
+      },
+      "id": "prepare-payment-data",
+      "name": "Prepare Payment Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [690, 200]
+    },
+    {
+      "parameters": {
+        "fromEmail": "payments@travelsphere.com",
+        "toEmail": "={{$json[\"userId\"]}}@placeholder.com",
+        "subject": "💳 Payment Received - ₹{{$json[\"amount\"]}} | TravelSphere",
+        "html": "<div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px'><div style='background:linear-gradient(135deg,#16a34a,#22c55e);padding:30px;border-radius:12px 12px 0 0;text-align:center'><h1 style='color:white;margin:0'>✅ Payment Confirmed</h1></div><div style='background:#fff;padding:30px;border:1px solid #e8e4de'><p>Your payment has been successfully processed.</p><div style='background:#f0faf9;padding:16px;border-radius:10px;margin:20px 0'><p><strong>Payment Ref:</strong> {{$json[\"paymentRef\"]}}</p><p><strong>Booking Ref:</strong> {{$json[\"bookingRef\"]}}</p><p><strong>Amount:</strong> ₹{{$json[\"amount\"]}}</p><p><strong>Method:</strong> {{$json[\"paymentMethod\"]}}</p></div><p>Your tickets and itinerary will be emailed shortly.</p></div></div>"
+      },
+      "id": "send-payment-email",
+      "name": "Send Payment Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [910, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:8090/api/v1/notifications/send",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "userId", "value": "={{$json[\"userId\"]}}" },
+            { "name": "type", "value": "PAYMENT" },
+            { "name": "channel", "value": "EMAIL" },
+            { "name": "title", "value": "Payment Confirmed" },
+            { "name": "message", "value": "Your payment of ₹{{$json[\"amount\"]}} has been processed. Booking ref: {{$json[\"bookingRef\"]}}" }
+          ]
+        }
+      },
+      "id": "trigger-notification",
+      "name": "Trigger In-App Notification",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [910, 400]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "status", "value": "success" },
+            { "name": "message", "value": "Payment flow completed for {{$json[\"paymentRef\"]}}" }
+          ]
+        }
+      },
+      "id": "success-response",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [1130, 300]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "status", "value": "skipped" }
+          ]
+        }
+      },
+      "id": "skip-response",
+      "name": "Skip",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [690, 420]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": { "main": [[{ "node": "Check Payment Event", "type": "main", "index": 0 }]] },
+    "Check Payment Event": {
+      "main": [
+        [{ "node": "Prepare Payment Data", "type": "main", "index": 0 }],
+        [{ "node": "Skip", "type": "main", "index": 0 }]
+      ]
+    },
+    "Prepare Payment Data": {
+      "main": [[
+        { "node": "Send Payment Email", "type": "main", "index": 0 },
+        { "node": "Trigger In-App Notification", "type": "main", "index": 0 }
+      ]]
+    },
+    "Send Payment Email": { "main": [[{ "node": "Success Response", "type": "main", "index": 0 }]] },
+    "Trigger In-App Notification": { "main": [[{ "node": "Success Response", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "travelsphere" }, { "name": "payment" }]
+}

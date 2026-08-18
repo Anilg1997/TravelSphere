@@ -41,6 +41,9 @@ import { AdminService } from '../../../services/admin.service';
         <a routerLink="/admin/system-health" class="nav-item">
           <mat-icon>monitor_heart</mat-icon> System
         </a>
+        <a routerLink="/admin/n8n-workflows" class="nav-item">
+          <mat-icon>hub</mat-icon> n8n Workflows
+        </a>
       </nav>
     </aside>
 
