@@ -47,6 +47,11 @@ export class AdminService {
     }).pipe(map(r => r.data || []));
   }
 
+  getUserBookings(userId: string): Observable<BookingManagementData[]> {
+    return this.http.get<ApiResponse<BookingManagementData[]>>(`${this.baseUrl}/bookings/user/${userId}`)
+      .pipe(map(r => r.data || []));
+  }
+
   getBookingDetail(bookingRef: string): Observable<BookingManagementData> {
     return this.http.get<ApiResponse<BookingManagementData>>(`${this.baseUrl}/bookings/${bookingRef}`)
       .pipe(map(r => r.data!));

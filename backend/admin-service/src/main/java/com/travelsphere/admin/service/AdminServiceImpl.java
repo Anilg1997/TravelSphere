@@ -240,6 +240,14 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    public List<BookingManagementResponse> getUserBookings(String userId) {
+        return bookingRecordRepository.findByUserIdOrderByCreatedAtDesc(UUID.fromString(userId))
+                .stream()
+                .map(this::toBookingManagementResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public BookingManagementResponse getBookingDetail(String bookingRef) {
         return BookingManagementResponse.builder()
                 .bookingRef(bookingRef)

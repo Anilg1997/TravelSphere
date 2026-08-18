@@ -18,6 +18,7 @@ public interface AdminService {
     UserManagementResponse updateUserRole(String userId, String role);
 
     List<BookingManagementResponse> getBookings(String serviceType, String status, int page, int size);
+    List<BookingManagementResponse> getUserBookings(String userId);
     BookingManagementResponse getBookingDetail(String bookingRef);
     BookingManagementResponse cancelBooking(String bookingRef);
     BookingManagementResponse refundBooking(String bookingRef);

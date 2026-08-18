@@ -74,6 +74,12 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.success(adminService.getBookings(serviceType, status, page, size)));
     }
 
+    @GetMapping("/bookings/user/{userId}")
+    @Operation(summary = "Get bookings for a specific user")
+    public ResponseEntity<ApiResponse<List<BookingManagementResponse>>> getUserBookings(@PathVariable String userId) {
+        return ResponseEntity.ok(ApiResponse.success(adminService.getUserBookings(userId)));
+    }
+
     @GetMapping("/bookings/{bookingRef}")
     @Operation(summary = "Get booking details")
     public ResponseEntity<ApiResponse<BookingManagementResponse>> getBooking(@PathVariable String bookingRef) {

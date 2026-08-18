@@ -8,7 +8,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { NgFor, NgIf, DatePipe } from '@angular/common';
 import { first } from 'rxjs';
-
+import { AiService, AiChatResponse } from '../../../services/ai.service';
+import { AuthService } from '../../../services/auth.service';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -83,11 +84,14 @@ interface ChatMessage {
 export class AiChatComponent implements OnInit {
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
+  private aiService = inject(AiService);
+  private authService = inject(AuthService);
 
   messages: ChatMessage[] = [
     { role: 'assistant', content: '👋 Hello! I\'m your TravelSphere AI assistant. Ask me about destinations, itineraries, travel tips, or anything travel-related!', timestamp: new Date() },
   ];
   loading = false;
+  sessionId: string | null = null;
   messageCtrl = this.fb.control('');
 
   ngOnInit() {
@@ -108,15 +112,36 @@ export class AiChatComponent implements OnInit {
     this.messageCtrl.reset();
     this.loading = true;
 
-    // Simulate AI response (would call backend API in production)
-    setTimeout(() => {
-      this.messages.push({
-        role: 'assistant',
-        content: this.generateResponse(content),
-        timestamp: new Date(),
-      });
-      this.loading = false;
-    }, 1000);
+    // Get user ID if available
+    let userId: string | undefined;
+    this.authService.user$.pipe(first()).subscribe(u => { userId = u?.id; });
+
+    const request = {
+      message: content,
+      sessionId: this.sessionId || undefined,
+      userId: userId,
+    };
+
+    this.aiService.chat(request).subscribe({
+      next: (response) => {
+        this.sessionId = response.sessionId;
+        this.messages.push({
+          role: 'assistant',
+          content: response.reply,
+          timestamp: new Date(response.timestamp),
+        });
+        this.loading = false;
+      },
+      error: () => {
+        // Fallback to local response if AI service is unavailable
+        this.messages.push({
+          role: 'assistant',
+          content: this.getFallbackResponse(content),
+          timestamp: new Date(),
+        });
+        this.loading = false;
+      },
+    });
   }
 
   quickPrompt(prompt: string) {
@@ -124,7 +149,7 @@ export class AiChatComponent implements OnInit {
     this.sendMessage();
   }
 
-  private generateResponse(prompt: string): string {
+  private getFallbackResponse(prompt: string): string {
     const lower = prompt.toLowerCase();
     if (lower.includes('trip') || lower.includes('plan') || lower.includes('itinerary')) {
       return `Here's a suggested itinerary:\n\n**Day 1:** Arrive and check in. Explore local attractions.\n**Day 2:** Visit major landmarks and enjoy local cuisine.\n**Day 3:** Leisure activities and shopping.\n\nWould you like me to customize this further?`;
