@@ -13,7 +13,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.kafka.core.KafkaTemplate;
 
-import java.math.BigDecimal;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,13 +28,19 @@ class SearchServiceImplTest {
     @Mock private KafkaTemplate<String, Object> kafkaTemplate;
     @InjectMocks private SearchServiceImpl searchService;
 
+    @BeforeEach
+    void setUp() {
+        // lenient: only the search tests read the Redis cache
+        lenient().when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+    }
+
     @Test
     void searchReturnsResults() {
         SearchIndex index = SearchIndex.builder()
                 .id(UUID.randomUUID()).entityType("HOTEL")
                 .entityId(UUID.randomUUID()).title("Grand Hotel")
                 .description("Luxury hotel in Mumbai").city("Mumbai").country("India")
-                .category("LUXURY").rating(4.5).price(new BigDecimal("5000"))
+                .category("LUXURY").rating(4.5).price(5000.0)
                 .isActive(true).build();
 
         when(searchIndexRepository.searchWithFilters("hotel", "HOTEL", "Mumbai", null))
@@ -73,7 +78,7 @@ class SearchServiceImplTest {
                 .entityType("HOTEL").entityId(UUID.randomUUID())
                 .title("Test Hotel").description("A test hotel")
                 .city("Goa").country("India").category("BEACH")
-                .rating(4.0).price(new BigDecimal("3000")).build();
+                .rating(4.0).price(3000.0).build();
 
         assertDoesNotThrow(() -> searchService.indexDocument(request));
         verify(searchIndexRepository).save(any());

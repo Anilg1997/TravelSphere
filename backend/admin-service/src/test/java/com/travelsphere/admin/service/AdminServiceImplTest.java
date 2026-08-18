@@ -4,7 +4,10 @@ import com.travelsphere.admin.dto.*;
 import com.travelsphere.admin.model.AdminAuditLog;
 import com.travelsphere.admin.model.FraudAlert;
 import com.travelsphere.admin.repository.AdminAuditLogRepository;
+import com.travelsphere.admin.repository.BookingRecordRepository;
 import com.travelsphere.admin.repository.FraudAlertRepository;
+import com.travelsphere.admin.repository.SupportTicketRepository;
+import com.travelsphere.admin.repository.SystemMetricRepository;
 import com.travelsphere.common.feign.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.kafka.core.KafkaTemplate;
 
 import java.time.LocalDateTime;
@@ -27,7 +31,11 @@ class AdminServiceImplTest {
 
     @Mock private FraudAlertRepository fraudAlertRepository;
     @Mock private AdminAuditLogRepository auditLogRepository;
+    @Mock private SupportTicketRepository supportTicketRepository;
+    @Mock private SystemMetricRepository systemMetricRepository;
+    @Mock private BookingRecordRepository bookingRecordRepository;
     @Mock private StringRedisTemplate redisTemplate;
+    @Mock private ValueOperations<String, String> valueOperations;
     @Mock private KafkaTemplate<String, Object> kafkaTemplate;
     @Mock private FlightClient flightClient;
     @Mock private HotelClient hotelClient;
@@ -40,6 +48,8 @@ class AdminServiceImplTest {
 
     @BeforeEach
     void setUp() {
+        // lenient: only dashboard/analytics tests read the Redis stats cache
+        lenient().when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         alertId = UUID.randomUUID();
         fraudAlert = FraudAlert.builder()
                 .id(alertId).userId(UUID.randomUUID())

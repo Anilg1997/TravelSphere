@@ -8,6 +8,7 @@ import com.travelsphere.ai.repository.ChatSessionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -28,7 +29,10 @@ class AiAgentServiceImplTest {
     @Mock private ChatSessionRepository sessionRepository;
     @Mock private ChatMessageRepository messageRepository;
     @Mock private KafkaTemplate<String, Object> kafkaTemplate;
-    @Mock private WebClient.Builder webClientBuilder;
+    @Mock private McpServer mcpServer;
+    @Mock private RagService ragService;
+    @Mock private DocumentIngestionService ingestionService;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS) private WebClient.Builder webClientBuilder;
     @InjectMocks private AiAgentServiceImpl aiAgentService;
 
     private UUID sessionId;
@@ -105,6 +109,6 @@ class AiAgentServiceImplTest {
     void ollamaFallbackReturnsUnavailableMessage() {
         String result = aiAgentService.ollamaFallback("test prompt", new RuntimeException("Connection refused"));
 
-        assertEquals("AI service is temporarily unavailable. Please try again later.", result);
+        assertEquals("AI service is temporarily unavailable. Please try again later or use the MCP tools directly.", result);
     }
 }

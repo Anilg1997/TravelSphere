@@ -27,11 +27,12 @@ class NotificationServiceImplTest {
     @Mock private ListOperations<String, String> listOperations;
     @InjectMocks private NotificationServiceImpl notificationService;
 
-    private static final String USER_ID = "user-123";
+    private static final String USER_ID = "a1b2c3d4-0000-4000-8000-000000000001";
 
     @BeforeEach
     void setUp() {
-        when(redisTemplate.opsForList()).thenReturn(listOperations);
+        // lenient: markAsReadDoesNotThrow never touches Redis list ops
+        lenient().when(redisTemplate.opsForList()).thenReturn(listOperations);
     }
 
     @Test

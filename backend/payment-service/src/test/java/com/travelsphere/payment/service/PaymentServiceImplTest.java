@@ -69,7 +69,7 @@ class PaymentServiceImplTest {
     @Test
     void initiatePaymentWithValidPromoCode() {
         PromoCode promo = PromoCode.builder()
-                .id(UUID.randomUUID()).code("SAVE10").discountPercent(10.0)
+                .id(UUID.randomUUID()).code("SAVE10").discountPercent(10)
                 .minOrderAmount(new BigDecimal("1000")).maxUsage(100).usageCount(0)
                 .isActive(true).build();
         when(promoCodeRepository.findByCodeAndIsActiveTrue("SAVE10")).thenReturn(Optional.of(promo));

@@ -89,7 +89,7 @@ class DocumentServiceImplTest {
     void getUserDocumentsReturnsList() {
         when(documentRepository.findByUserIdOrderByCreatedAtDesc(any())).thenReturn(List.of(document));
 
-        List<DocumentResponse> responses = documentService.getUserDocuments("user-123");
+        List<DocumentResponse> responses = documentService.getUserDocuments("a1b2c3d4-0000-4000-8000-000000000001");
 
         assertEquals(1, responses.size());
         assertEquals("BOOKING_CONFIRMATION", responses.get(0).getDocumentType());
