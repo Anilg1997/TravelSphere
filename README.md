@@ -13,46 +13,6 @@ A full-stack enterprise microservices platform for booking flights, hotels, cars
 
 ---
 
-## 🎬 Demo Video
-
-> **Watch the full walkthrough** of TravelSphere covering every feature — registration, flight/hotel/food booking, AI trip planner, nearby discovery, dark theme, admin panel, and more.
-
-[![Demo Video Thumbnail](https://img.shields.io/badge/▶_Watch_Full_Demo_Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white&label=Click%20to%20Watch)](#-demo-video)
-
-### 📋 Demo Recording Script
-
-A complete scene-by-scene recording guide is provided in **[DEMO_SCRIPT.md](DEMO_SCRIPT.md)** — use it to record a professional demo video covering all 12 scenes:
-
-| Scene | Feature | Duration |
-|-------|---------|----------|
-| 1 | Landing page & navigation | 0:00 – 0:45 |
-| 2 | User registration & login | 0:45 – 1:45 |
-| 3 | Flight search & booking | 1:45 – 3:00 |
-| 4 | Hotel search & booking | 3:00 – 4:00 |
-| 5 | Food delivery & order tracking | 4:00 – 5:30 |
-| 6 | Nearby discovery & mini-map | 5:30 – 6:30 |
-| 7 | AI agent & trip planner | 6:30 – 7:45 |
-| 8 | Insurance & packages | 7:45 – 8:30 |
-| 9 | Profile, settings & dark theme | 8:30 – 9:30 |
-| 10 | Real-time notifications | 9:30 – 10:00 |
-| 11 | Admin panel | 10:00 – 11:00 |
-| 12 | Architecture overview & closing | 11:00 – 11:30 |
-
-### 📸 Automated Screenshots
-
-Capture all page screenshots automatically:
-
-```bash
-cd docs/demo
-npm init -y && npm install playwright
-npx playwright install chromium
-node capture-demo.js
-```
-
-Screenshots are saved to `docs/demo/screenshots/` — use them in the README, wiki, or presentation.
-
----
-
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -401,10 +361,6 @@ TravelSphere-Nexus-AI-Powered-Travel-Booking-Insurance-Platform/
 ├── infra/                          # Infrastructure scripts
 │   └── postgres/init.sql           # Database schema initialization
 ├── .github/workflows/ci.yml        # GitHub Actions CI pipeline
-├── docs/demo/                      # Demo screenshots & recording script
-│   ├── DEMO_SCRIPT.md              # Scene-by-scene recording guide
-│   ├── capture-demo.js             # Automated screenshot capture
-│   └── screenshots/                # Captured demo screenshots
 ├── docker-compose.yml              # Full stack orchestration
 ├── .env                            # Environment variables (gitignored)
 ├── .env.example                    # Example env file (tracked)
