@@ -68,6 +68,10 @@ spring:
           uri: lb://ai-agent-service
           predicates:
             - Path=/api/v1/ai/**
+        - id: food-delivery-service
+          uri: lb://food-delivery-service
+          predicates:
+            - Path=/api/v1/food/**
         - id: admin-service
           uri: lb://admin-service
           predicates:

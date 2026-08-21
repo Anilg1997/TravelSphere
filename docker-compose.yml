@@ -242,7 +242,10 @@ services:
       - "8888:8888"
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
-      SPRING_CLOUD_CONFIG_SERVER_GIT_URI: ${CONFIG_REPO_URI:-https://github.com/Anilg1997/ai-travelsphere-platform.git}
+      SPRING_CLOUD_CONFIG_SERVER_GIT_URI: ${CONFIG_REPO_URI:-file:///config-repo}
+      SPRING_CLOUD_CONFIG_SERVER_GIT_SEARCHPATH: ${CONFIG_REPO_SEARCHPATH:.}
+    volumes:
+      - ./config-repo:/config-repo:ro
     depends_on:
       service-registry:
         condition: service_started
