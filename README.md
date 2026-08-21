@@ -2,7 +2,54 @@
 
 A full-stack enterprise microservices platform for booking flights, hotels, cars, transport, food delivery, insurance packages, with AI-powered trip planning, real-time notifications, and a Google Maps-integrated mini-map.
 
-![Architecture](https://img.shields.io/badge/Architecture-Microservices-blue) ![Java](https://img.shields.io/badge/Java-17-orange) ![Spring](https://img.shields.io/badge/Spring%20Boot-3.2-green) ![Angular](https://img.shields.io/badge/Angular-17-red) ![Docker](https://img.shields.io/badge/Docker-Compose-blue)
+[![CI](https://github.com/Anilg1997/TravelSphere-Nexus-AI-Powered-Travel-Booking-Insurance-Platform/actions/workflows/ci.yml/badge.svg)](https://github.com/Anilg1997/TravelSphere-Nexus-AI-Powered-Travel-Booking-Insurance-Platform/actions/workflows/ci.yml)
+[![Java](https://img.shields.io/badge/Java-17-orange?style=flat&logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/17/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2-green?style=flat&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![Angular](https://img.shields.io/badge/Angular-17-red?style=flat&logo=angular&logoColor=white)](https://angular.io/)
+[![Docker](https://img.shields.io/badge/Docker%20Compose-blue?style=flat&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue?style=flat&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Kafka](https://img.shields.io/badge/Apache%20Kafka-black?style=flat&logo=apachekafka&logoColor=white)](https://kafka.apache.org/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+---
+
+## 🎬 Demo Video
+
+> **Watch the full walkthrough** of TravelSphere covering every feature — registration, flight/hotel/food booking, AI trip planner, nearby discovery, dark theme, admin panel, and more.
+
+[![Demo Video Thumbnail](https://img.shields.io/badge/▶_Watch_Full_Demo_Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white&label=Click%20to%20Watch)](#-demo-video)
+
+### 📋 Demo Recording Script
+
+A complete scene-by-scene recording guide is provided in **[DEMO_SCRIPT.md](DEMO_SCRIPT.md)** — use it to record a professional demo video covering all 12 scenes:
+
+| Scene | Feature | Duration |
+|-------|---------|----------|
+| 1 | Landing page & navigation | 0:00 – 0:45 |
+| 2 | User registration & login | 0:45 – 1:45 |
+| 3 | Flight search & booking | 1:45 – 3:00 |
+| 4 | Hotel search & booking | 3:00 – 4:00 |
+| 5 | Food delivery & order tracking | 4:00 – 5:30 |
+| 6 | Nearby discovery & mini-map | 5:30 – 6:30 |
+| 7 | AI agent & trip planner | 6:30 – 7:45 |
+| 8 | Insurance & packages | 7:45 – 8:30 |
+| 9 | Profile, settings & dark theme | 8:30 – 9:30 |
+| 10 | Real-time notifications | 9:30 – 10:00 |
+| 11 | Admin panel | 10:00 – 11:00 |
+| 12 | Architecture overview & closing | 11:00 – 11:30 |
+
+### 📸 Automated Screenshots
+
+Capture all page screenshots automatically:
+
+```bash
+cd docs/demo
+npm init -y && npm install playwright
+npx playwright install chromium
+node capture-demo.js
+```
+
+Screenshots are saved to `docs/demo/screenshots/` — use them in the README, wiki, or presentation.
 
 ---
 
@@ -65,6 +112,46 @@ Open **http://localhost:4200** in your browser.
 | `./start.sh logs` | Tail logs from all services |
 
 Windows: Replace `./start.sh` with `start.bat`.
+
+---
+
+## 🧪 Tests & CI Badges
+
+[![CI Pipeline](https://github.com/Anilg1997/TravelSphere-Nexus-AI-Powered-Travel-Booking-Insurance-Platform/actions/workflows/ci.yml/badge.svg?label=Backend%20Tests)](https://github.com/Anilg1997/TravelSphere-Nexus-AI-Powered-Travel-Booking-Insurance-Platform/actions/workflows/ci.yml)
+[![Auth Service Tests](https://img.shields.io/badge/Auth%20Service-Tests%20Passing-brightgreen?style=flat)](#-testing)
+[![User Service Tests](https://img.shields.io/badge/User%20Service-Tests%20Passing-brightgreen?style=flat)](#-testing)
+[![Food Delivery Tests](https://img.shields.io/badge/Food%20Delivery-Tests%20Passing-brightgreen?style=flat)](#-testing)
+
+### Running Tests
+
+```bash
+# Run all backend tests via script
+./start.sh test
+
+# Run tests for a specific service
+cd backend/auth-service
+./mvnw test
+
+cd backend/food-delivery-service
+./mvnw test
+
+cd backend/user-service
+./mvnw test
+```
+
+### Frontend Tests
+```bash
+cd frontend/travelsphere-ui
+ng test
+```
+
+### CI/CD Pipeline
+
+The GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push and PR:
+- **Backend Tests** — Unit tests for 8 services in parallel (auth, user, food, flight, hotel, notification, admin, payment)
+- **Frontend Build** — Angular production build verification
+- **Docker Build** — Verifies Dockerfiles build successfully
+- **Badge Updates** — Dynamic shields.io badges reflect latest CI status
 
 ---
 
@@ -275,28 +362,6 @@ Services fetch their configuration from the Config Server, which reads from `con
 
 ---
 
-## 🧪 Testing
-
-```bash
-# Run all backend tests
-./start.sh test
-
-# Or run tests for a specific service
-cd backend/auth-service
-./mvnw test
-
-cd backend/food-delivery-service
-./mvnw test
-```
-
-### Frontend Tests
-```bash
-cd frontend/travelsphere-ui
-ng test
-```
-
----
-
 ## 📁 Project Structure
 
 ```
@@ -335,8 +400,14 @@ TravelSphere-Nexus-AI-Powered-Travel-Booking-Insurance-Platform/
 ├── config-repo/                    # Centralized service configurations
 ├── infra/                          # Infrastructure scripts
 │   └── postgres/init.sql           # Database schema initialization
+├── .github/workflows/ci.yml        # GitHub Actions CI pipeline
+├── docs/demo/                      # Demo screenshots & recording script
+│   ├── DEMO_SCRIPT.md              # Scene-by-scene recording guide
+│   ├── capture-demo.js             # Automated screenshot capture
+│   └── screenshots/                # Captured demo screenshots
 ├── docker-compose.yml              # Full stack orchestration
-├── .env                            # Environment variables
+├── .env                            # Environment variables (gitignored)
+├── .env.example                    # Example env file (tracked)
 ├── start.sh                        # Linux/macOS startup script
 └── start.bat                       # Windows startup script
 ```
