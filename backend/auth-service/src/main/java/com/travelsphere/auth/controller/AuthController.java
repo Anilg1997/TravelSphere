@@ -1,6 +1,8 @@
 package com.travelsphere.auth.controller;
 
 import com.travelsphere.auth.dto.AuthResponse;
+import com.travelsphere.auth.dto.ChangePasswordRequest;
+import com.travelsphere.auth.dto.ChangeEmailRequest;
 import com.travelsphere.auth.dto.LoginRequest;
 import com.travelsphere.auth.dto.RegisterRequest;
 import com.travelsphere.auth.service.AuthService;
@@ -12,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -65,5 +68,31 @@ public class AuthController {
                         .roles(java.util.Set.of(roles.split(",")))
                         .build(),
                 "Current user info"));
+    }
+
+    @PutMapping("/change-password")
+    @Operation(summary = "Change the current user's password")
+    public ResponseEntity<ApiResponse<Void>> changePassword(
+            @RequestHeader("X-User-Id") String userId,
+            @Valid @RequestBody ChangePasswordRequest request) {
+        authService.changePassword(UUID.fromString(userId), request);
+        return ResponseEntity.ok(ApiResponse.success(null, "Password changed successfully. Please log in again."));
+    }
+
+    @PutMapping("/change-email")
+    @Operation(summary = "Change the current user's email address")
+    public ResponseEntity<ApiResponse<Void>> changeEmail(
+            @RequestHeader("X-User-Id") String userId,
+            @Valid @RequestBody ChangeEmailRequest request) {
+        authService.changeEmail(UUID.fromString(userId), request);
+        return ResponseEntity.ok(ApiResponse.success(null, "Email changed successfully. Please verify your new email."));
+    }
+
+    @DeleteMapping("/me")
+    @Operation(summary = "Delete the current user's account")
+    public ResponseEntity<ApiResponse<Void>> deleteAccount(
+            @RequestHeader("X-User-Id") String userId) {
+        authService.deleteAccount(UUID.fromString(userId));
+        return ResponseEntity.ok(ApiResponse.success(null, "Account deleted successfully."));
     }
 }

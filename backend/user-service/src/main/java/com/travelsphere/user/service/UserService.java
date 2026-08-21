@@ -12,4 +12,5 @@ public interface UserService {
     ReferralResponse createReferral(UUID userId, ReferralRequest request);
     List<ReferralResponse> getMyReferrals(UUID userId);
     void processUserRegistered(String userId);
+    UserDataExportResponse exportUserData(UUID userId);
 }

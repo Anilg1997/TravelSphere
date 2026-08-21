@@ -83,6 +83,31 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserDataExportResponse exportUserData(UUID userId) {
+        UserProfile profile = profileRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User profile not found"));
+
+        UserDataExportResponse.ProfileData profileData = UserDataExportResponse.ProfileData.builder()
+                .fullName(profile.getFullName())
+                .email(null) // Email is in auth-service, not user-service
+                .phone(profile.getPhone())
+                .role("USER")
+                .emailVerified(false)
+                .createdAt(profile.getCreatedAt())
+                .build();
+
+        List<LoyaltyTransactionResponse> loyaltyHistory = getLoyaltyHistory(userId);
+        List<ReferralResponse> referrals = getMyReferrals(userId);
+
+        return UserDataExportResponse.builder()
+                .profile(profileData)
+                .loyaltyHistory(loyaltyHistory)
+                .referrals(referrals)
+                .exportedAt(java.time.LocalDateTime.now())
+                .build();
+    }
+
+    @Override
     @Transactional
     @KafkaListener(topics = "ts.users.registered", groupId = "user-service-group")
     public void processUserRegistered(String userId) {

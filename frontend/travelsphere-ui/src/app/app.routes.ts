@@ -31,6 +31,13 @@ export const routes: Routes = [
   { path: 'transport', loadComponent: () => import('./pages/transport/transport-search/transport-search.component').then(m => m.TransportSearchComponent) },
   { path: 'transport/booking/:ref', loadComponent: () => import('./pages/transport/transport-booking/transport-booking.component').then(m => m.TransportBookingComponent), canActivate: [authGuard] },
 
+  // Food Delivery
+  { path: 'food', loadComponent: () => import('./pages/food/restaurant-search/restaurant-search.component').then(m => m.RestaurantSearchComponent) },
+  { path: 'food/restaurants/:id', loadComponent: () => import('./pages/food/restaurant-detail/restaurant-detail.component').then(m => m.RestaurantDetailComponent) },
+  { path: 'food/order', loadComponent: () => import('./pages/food/food-order/food-order.component').then(m => m.FoodOrderComponent), canActivate: [authGuard] },
+  { path: 'food/orders/:ref', loadComponent: () => import('./pages/food/food-order-tracking/food-order-tracking.component').then(m => m.FoodOrderTrackingComponent), canActivate: [authGuard] },
+  { path: 'food/orders', loadComponent: () => import('./pages/food/order-history/order-history.component').then(m => m.OrderHistoryComponent), canActivate: [authGuard] },
+
   // Insurance
   { path: 'insurance', loadComponent: () => import('./pages/insurance/insurance-list/insurance-list.component').then(m => m.InsuranceListComponent) },
   { path: 'insurance/purchase', loadComponent: () => import('./pages/insurance/insurance-purchase/insurance-purchase.component').then(m => m.InsurancePurchaseComponent), canActivate: [authGuard] },
@@ -52,11 +59,15 @@ export const routes: Routes = [
   { path: 'ai/plan-trip', loadComponent: () => import('./pages/ai/trip-planner/trip-planner.component').then(m => m.TripPlannerComponent) },
   { path: 'ai/recommendations', loadComponent: () => import('./pages/ai/recommendations/recommendations.component').then(m => m.RecommendationsComponent), canActivate: [authGuard] },
 
+  // Nearby Discovery
+  { path: 'nearby', loadComponent: () => import('./pages/nearby/nearby-discovery.component').then(m => m.NearbyDiscoveryComponent) },
+
   // Journey Tracker
   { path: 'journey-tracker', loadComponent: () => import('./pages/journey/journey-tracker.component').then(m => m.JourneyTrackerComponent) },
 
   // User
   { path: 'profile', loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent), canActivate: [authGuard] },
+  { path: 'settings', loadComponent: () => import('./pages/profile/settings/settings.component').then(m => m.SettingsComponent), canActivate: [authGuard] },
   { path: 'bookings', loadComponent: () => import('./pages/profile/bookings/bookings.component').then(m => m.BookingsComponent), canActivate: [authGuard] },
   { path: 'loyalty', loadComponent: () => import('./pages/profile/loyalty/loyalty.component').then(m => m.LoyaltyComponent), canActivate: [authGuard] },
   { path: 'referrals', loadComponent: () => import('./pages/profile/referrals/referrals.component').then(m => m.ReferralsComponent), canActivate: [authGuard] },

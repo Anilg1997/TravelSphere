@@ -235,6 +235,74 @@ html, body {
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
+/* ── Dark Theme ────────────────────────────────── */
+.dark-theme {
+  --primary: #7986cb;
+  --primary-light: #9fa8da;
+  --primary-dark: #5c6bc0;
+  --glass-bg: rgba(30, 30, 30, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --card-hover-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.dark-theme html,
+.dark-theme body {
+  background: #121212;
+  color: #e0e0e0;
+}
+
+.dark-theme .mat-mdc-card {
+  background: #1e1e1e !important;
+  border: 1px solid #333 !important;
+}
+
+.dark-theme .mat-mdc-card:hover {
+  background: #252525 !important;
+}
+
+.dark-theme .mat-mdc-tab-body-content {
+  color: #e0e0e0;
+}
+
+.dark-theme .form-section {
+  background: rgba(30, 30, 30, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark-theme .mat-mdc-form-field {
+  color: #e0e0e0;
+}
+
+.dark-theme mat-divider {
+  border-color: #333;
+}
+
+.dark-theme .mat-mdc-slide-toggle-label {
+  color: #e0e0e0;
+}
+
+.dark-theme .sidenav-header {
+  border-color: #333;
+}
+
+.dark-theme .data-table .mat-mdc-header-row {
+  background: #2a2a2a;
+}
+
+.dark-theme .data-table .mat-mdc-row:hover {
+  background: #2a2a2a;
+}
+
+.dark-theme ::-webkit-scrollbar-thumb {
+  background: #555;
+}
+
+.dark-theme ::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}
+
 /* ── Status Badges ─────────────────────────────── */
 .status-badge {
   display: inline-flex;

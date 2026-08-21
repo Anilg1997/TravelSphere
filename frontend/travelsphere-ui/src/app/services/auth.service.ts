@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, map, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { ApiResponse } from '../models/api-response.model';
-import { LoginRequest, RegisterRequest, AuthResponse, UserProfile } from '../models/user.model';
+import { LoginRequest, RegisterRequest, AuthResponse, UserProfile, ChangePasswordRequest, ChangeEmailRequest } from '../models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -56,5 +56,23 @@ export class AuthService {
   private getStoredUser(): UserProfile | null {
     const stored = localStorage.getItem('travelsphere_user');
     return stored ? JSON.parse(stored) : null;
+  }
+
+  changePassword(request: ChangePasswordRequest): Observable<void> {
+    return this.http.put<ApiResponse<void>>(`${this.baseUrl}/change-password`, request).pipe(
+      map(() => undefined)
+    );
+  }
+
+  changeEmail(request: ChangeEmailRequest): Observable<void> {
+    return this.http.put<ApiResponse<void>>(`${this.baseUrl}/change-email`, request).pipe(
+      map(() => undefined)
+    );
+  }
+
+  deleteAccount(): Observable<void> {
+    return this.http.delete<ApiResponse<void>>(`${this.baseUrl}/me`).pipe(
+      map(() => undefined)
+    );
   }
 }

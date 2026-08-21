@@ -2,6 +2,8 @@ package com.travelsphere.auth.service;
 
 import com.travelsphere.auth.config.JwtUtil;
 import com.travelsphere.auth.dto.AuthResponse;
+import com.travelsphere.auth.dto.ChangePasswordRequest;
+import com.travelsphere.auth.dto.ChangeEmailRequest;
 import com.travelsphere.auth.dto.LoginRequest;
 import com.travelsphere.auth.dto.RegisterRequest;
 import com.travelsphere.auth.model.Role;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -167,5 +170,66 @@ public class AuthServiceImpl implements AuthService {
         // Remove refresh tokens
         String userId = claims.getPayload().getSubject();
         redisTemplate.delete("refresh:" + userId);
+    }
+
+    @Override
+    @Transactional
+    public void changePassword(UUID userId, ChangePasswordRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPasswordHash())) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+
+        // Invalidate all existing refresh tokens for this user
+        redisTemplate.delete("refresh:" + userId);
+    }
+
+    @Override
+    @Transactional
+    public void deleteAccount(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        // Soft-delete: deactivate instead of hard delete
+        user.setIsActive(false);
+        userRepository.save(user);
+
+        // Invalidate all refresh tokens
+        redisTemplate.delete("refresh:" + userId);
+
+        // Publish account deleted event for other services to clean up
+        kafkaTemplate.send("ts.users.deleted", userId.toString(), userId);
+    }
+
+    @Override
+    @Transactional
+    public void changeEmail(UUID userId, ChangeEmailRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        // Verify current password
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPasswordHash())) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+
+        // Check if new email is already taken
+        if (userRepository.existsByEmail(request.getNewEmail())) {
+            throw new IllegalArgumentException("Email address is already in use");
+        }
+
+        user.setEmail(request.getNewEmail());
+        user.setEmailVerified(false);
+        userRepository.save(user);
+
+        // Invalidate all existing refresh tokens (new email will be in new tokens)
+        redisTemplate.delete("refresh:" + userId);
+
+        // Publish email changed event
+        kafkaTemplate.send("ts.users.email-changed", userId.toString(), userId);
     }
 }

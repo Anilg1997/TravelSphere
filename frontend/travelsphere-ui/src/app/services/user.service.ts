@@ -26,4 +26,22 @@ export class UserService {
   getReferrals(): Observable<any[]> {
     return this.http.get<ApiResponse<any[]>>(`${this.baseUrl}/referrals`).pipe(map(r => r.data || []));
   }
+
+  exportUserData(): Observable<UserDataExport> {
+    return this.http.get<ApiResponse<UserDataExport>>(`${this.baseUrl}/me/export`).pipe(map(r => r.data!));
+  }
+}
+
+export interface UserDataExport {
+  profile: {
+    fullName: string;
+    email: string | null;
+    phone: string;
+    role: string;
+    emailVerified: boolean;
+    createdAt: string;
+  };
+  loyaltyHistory: any[];
+  referrals: any[];
+  exportedAt: string;
 }

@@ -34,3 +34,13 @@ export interface UpdateProfileRequest {
   phone?: string;
   avatarUrl?: string;
 }
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface ChangeEmailRequest {
+  newEmail: string;
+  currentPassword: string;
+}

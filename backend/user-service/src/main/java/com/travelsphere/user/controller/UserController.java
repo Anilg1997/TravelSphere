@@ -62,4 +62,12 @@ public class UserController {
         List<ReferralResponse> referrals = userService.getMyReferrals(UUID.fromString(userId));
         return ResponseEntity.ok(ApiResponse.success(referrals));
     }
+
+    @GetMapping("/me/export")
+    @Operation(summary = "Export all user data for GDPR compliance")
+    public ResponseEntity<ApiResponse<UserDataExportResponse>> exportUserData(
+            @RequestHeader("X-User-Id") String userId) {
+        UserDataExportResponse data = userService.exportUserData(UUID.fromString(userId));
+        return ResponseEntity.ok(ApiResponse.success(data));
+    }
 }

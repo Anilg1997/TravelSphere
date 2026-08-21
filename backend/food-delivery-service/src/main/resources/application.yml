@@ -1,0 +1,8 @@
+server:
+  port: 8096
+
+spring:
+  application:
+    name: food-delivery-service
+  config:
+    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}

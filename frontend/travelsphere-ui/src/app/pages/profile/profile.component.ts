@@ -29,10 +29,11 @@ import { UserProfile } from '../../models/user.model';
           <p style="color:#666;margin:0">{{ profile.email }}</p>
           <p style="color:#666;font-size:0.9rem">{{ profile.phone }} · {{ profile.role }}</p>
           <p style="color:#999;font-size:0.85rem">Joined: {{ profile.createdAt | date }}</p>
-          <div style="display:flex;gap:12px;justify-content:center;margin-top:16px">
+          <div style="display:flex;gap:12px;justify-content:center;margin-top:16px;flex-wrap:wrap">
             <button mat-raised-button color="primary" routerLink="/bookings"><mat-icon>book_online</mat-icon> My Bookings</button>
             <button mat-stroked-button routerLink="/loyalty"><mat-icon>stars</mat-icon> Loyalty</button>
             <button mat-stroked-button routerLink="/wallet"><mat-icon>account_balance_wallet</mat-icon> Wallet</button>
+            <button mat-stroked-button routerLink="/settings"><mat-icon>settings</mat-icon> Settings</button>
           </div>
         </mat-card>
 
