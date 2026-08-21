@@ -2,6 +2,8 @@ package com.travelsphere.auth.service;
 
 import com.travelsphere.auth.config.JwtUtil;
 import com.travelsphere.auth.dto.AuthResponse;
+import com.travelsphere.auth.dto.ChangeEmailRequest;
+import com.travelsphere.auth.dto.ChangePasswordRequest;
 import com.travelsphere.auth.dto.LoginRequest;
 import com.travelsphere.auth.dto.RegisterRequest;
 import com.travelsphere.auth.model.LoyaltyTier;
@@ -164,5 +166,179 @@ class AuthServiceImplTest {
 
         verify(valueOps).set(eq("blacklist:" + TEST_TOKEN_ID), eq("1"), anyLong(), any());
         verify(redisTemplate).delete("refresh:" + TEST_USER_ID);
+    }
+
+    // ── Change Password Tests ─────────────────────────────
+
+    @Test
+    void changePasswordSuccess() {
+        User user = User.builder()
+                .id(TEST_USER_ID).email(TEST_EMAIL).passwordHash("encoded-old")
+                .fullName(TEST_NAME).isActive(true).loyaltyTier(LoyaltyTier.SILVER)
+                .roles(Set.of(Role.ROLE_USER)).build();
+
+        when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("oldPass123", "encoded-old")).thenReturn(true);
+        when(passwordEncoder.encode("newPass456")).thenReturn("encoded-new");
+        when(userRepository.save(any(User.class))).thenReturn(user);
+
+        ChangePasswordRequest request = ChangePasswordRequest.builder()
+                .currentPassword("oldPass123")
+                .newPassword("newPass456")
+                .build();
+
+        authService.changePassword(TEST_USER_ID, request);
+
+        verify(passwordEncoder).encode("newPass456");
+        verify(userRepository).save(any(User.class));
+        verify(redisTemplate).delete("refresh:" + TEST_USER_ID);
+    }
+
+    @Test
+    void changePasswordUserNotFoundThrows() {
+        when(userRepository.findById(any())).thenReturn(Optional.empty());
+
+        ChangePasswordRequest request = ChangePasswordRequest.builder()
+                .currentPassword("oldPass123")
+                .newPassword("newPass456")
+                .build();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> authService.changePassword(TEST_USER_ID, request));
+    }
+
+    @Test
+    void changePasswordIncorrectCurrentPasswordThrows() {
+        User user = User.builder()
+                .id(TEST_USER_ID).email(TEST_EMAIL).passwordHash("encoded-old")
+                .fullName(TEST_NAME).isActive(true).loyaltyTier(LoyaltyTier.SILVER)
+                .roles(Set.of(Role.ROLE_USER)).build();
+
+        when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("wrongPassword", "encoded-old")).thenReturn(false);
+
+        ChangePasswordRequest request = ChangePasswordRequest.builder()
+                .currentPassword("wrongPassword")
+                .newPassword("newPass456")
+                .build();
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> authService.changePassword(TEST_USER_ID, request));
+        assertEquals("Current password is incorrect", ex.getMessage());
+
+        verify(userRepository, never()).save(any());
+    }
+
+    // ── Change Email Tests ──────────────────────────────
+
+    @Test
+    void changeEmailSuccess() {
+        User user = User.builder()
+                .id(TEST_USER_ID).email(TEST_EMAIL).passwordHash("encoded")
+                .fullName(TEST_NAME).isActive(true).emailVerified(true)
+                .loyaltyTier(LoyaltyTier.SILVER).roles(Set.of(Role.ROLE_USER)).build();
+
+        when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("password123", "encoded")).thenReturn(true);
+        when(userRepository.existsByEmail("new@email.com")).thenReturn(false);
+        when(userRepository.save(any(User.class))).thenReturn(user);
+
+        ChangeEmailRequest request = ChangeEmailRequest.builder()
+                .newEmail("new@email.com")
+                .currentPassword("password123")
+                .build();
+
+        authService.changeEmail(TEST_USER_ID, request);
+
+        verify(userRepository).save(argThat(u -> {
+            User saved = (User) u;
+            return "new@email.com".equals(saved.getEmail()) && !saved.isEmailVerified();
+        }));
+        verify(redisTemplate).delete("refresh:" + TEST_USER_ID);
+        verify(kafkaTemplate).send(eq("ts.users.email-changed"), eq(TEST_USER_ID.toString()), eq(TEST_USER_ID));
+    }
+
+    @Test
+    void changeEmailUserNotFoundThrows() {
+        when(userRepository.findById(any())).thenReturn(Optional.empty());
+
+        ChangeEmailRequest request = ChangeEmailRequest.builder()
+                .newEmail("new@email.com")
+                .currentPassword("password123")
+                .build();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> authService.changeEmail(TEST_USER_ID, request));
+    }
+
+    @Test
+    void changeEmailIncorrectPasswordThrows() {
+        User user = User.builder()
+                .id(TEST_USER_ID).email(TEST_EMAIL).passwordHash("encoded")
+                .isActive(true).loyaltyTier(LoyaltyTier.SILVER)
+                .roles(Set.of(Role.ROLE_USER)).build();
+
+        when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("wrongPassword", "encoded")).thenReturn(false);
+
+        ChangeEmailRequest request = ChangeEmailRequest.builder()
+                .newEmail("new@email.com")
+                .currentPassword("wrongPassword")
+                .build();
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> authService.changeEmail(TEST_USER_ID, request));
+        assertEquals("Current password is incorrect", ex.getMessage());
+
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void changeEmailAlreadyTakenThrows() {
+        User user = User.builder()
+                .id(TEST_USER_ID).email(TEST_EMAIL).passwordHash("encoded")
+                .isActive(true).loyaltyTier(LoyaltyTier.SILVER)
+                .roles(Set.of(Role.ROLE_USER)).build();
+
+        when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("password123", "encoded")).thenReturn(true);
+        when(userRepository.existsByEmail("taken@email.com")).thenReturn(true);
+
+        ChangeEmailRequest request = ChangeEmailRequest.builder()
+                .newEmail("taken@email.com")
+                .currentPassword("password123")
+                .build();
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> authService.changeEmail(TEST_USER_ID, request));
+        assertEquals("Email address is already in use", ex.getMessage());
+
+        verify(userRepository, never()).save(any());
+    }
+
+    // ── Delete Account Tests ──────────────────────────────
+
+    @Test
+    void deleteAccountSuccess() {
+        User user = User.builder()
+                .id(TEST_USER_ID).email(TEST_EMAIL).isActive(true)
+                .loyaltyTier(LoyaltyTier.SILVER).roles(Set.of(Role.ROLE_USER)).build();
+
+        when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenReturn(user);
+
+        authService.deleteAccount(TEST_USER_ID);
+
+        verify(userRepository).save(argThat(u -> !((User) u).isActive()));
+        verify(redisTemplate).delete("refresh:" + TEST_USER_ID);
+        verify(kafkaTemplate).send(eq("ts.users.deleted"), eq(TEST_USER_ID.toString()), eq(TEST_USER_ID));
+    }
+
+    @Test
+    void deleteAccountUserNotFoundThrows() {
+        when(userRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> authService.deleteAccount(TEST_USER_ID));
     }
 }

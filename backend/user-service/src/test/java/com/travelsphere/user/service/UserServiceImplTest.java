@@ -147,4 +147,61 @@ class UserServiceImplTest {
 
         verify(profileRepository, never()).save(any());
     }
+
+    // ── Export User Data Tests ─────────────────────────────
+
+    @Test
+    void exportUserDataSuccess() {
+        when(profileRepository.findByUserId(userId)).thenReturn(Optional.of(profile));
+
+        LoyaltyTransaction tx = LoyaltyTransaction.builder()
+                .id(UUID.randomUUID()).userId(userId).points(100)
+                .type(LoyaltyTransaction.TransactionType.BONUS)
+                .description("Welcome bonus").createdAt(LocalDateTime.now()).build();
+        when(loyaltyRepository.findByUserIdOrderByCreatedAtDesc(userId)).thenReturn(List.of(tx));
+
+        Referral referral = Referral.builder()
+                .id(UUID.randomUUID()).referrerUserId(userId)
+                .referredEmail("friend@email.com").referralCode("TS-ABC123")
+                .status(Referral.ReferralStatus.PENDING).bonusPointsAwarded(500)
+                .createdAt(LocalDateTime.now()).build();
+        when(referralRepository.findByReferrerUserId(userId)).thenReturn(List.of(referral));
+
+        UserDataExportResponse response = userService.exportUserData(userId);
+
+        assertNotNull(response);
+        assertNotNull(response.getProfile());
+        assertEquals("John Doe", response.getProfile().getFullName());
+        assertEquals("+91-9876543210", response.getProfile().getPhone());
+        assertEquals("USER", response.getProfile().getRole());
+        assertNotNull(response.getLoyaltyHistory());
+        assertEquals(1, response.getLoyaltyHistory().size());
+        assertEquals(100, response.getLoyaltyHistory().get(0).getPoints());
+        assertNotNull(response.getReferrals());
+        assertEquals(1, response.getReferrals().size());
+        assertEquals("TS-ABC123", response.getReferrals().get(0).getReferralCode());
+        assertNotNull(response.getExportedAt());
+    }
+
+    @Test
+    void exportUserDataProfileNotFoundThrows() {
+        when(profileRepository.findByUserId(userId)).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> userService.exportUserData(userId));
+    }
+
+    @Test
+    void exportUserDataWithEmptyHistoryAndReferrals() {
+        when(profileRepository.findByUserId(userId)).thenReturn(Optional.of(profile));
+        when(loyaltyRepository.findByUserIdOrderByCreatedAtDesc(userId)).thenReturn(List.of());
+        when(referralRepository.findByReferrerUserId(userId)).thenReturn(List.of());
+
+        UserDataExportResponse response = userService.exportUserData(userId);
+
+        assertNotNull(response);
+        assertNotNull(response.getProfile());
+        assertTrue(response.getLoyaltyHistory().isEmpty());
+        assertTrue(response.getReferrals().isEmpty());
+    }
 }

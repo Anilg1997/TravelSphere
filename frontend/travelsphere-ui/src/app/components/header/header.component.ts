@@ -12,11 +12,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
+import { NotificationPanelComponent } from '../notification-panel/notification-panel.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, MatToolbarModule, MatButtonModule, MatIconModule, MatMenuModule, MatBadgeModule, MatSidenavModule, MatListModule, MatTooltipModule, MatDividerModule, NgIf, AsyncPipe],
+  imports: [RouterLink, RouterLinkActive, MatToolbarModule, MatButtonModule, MatIconModule, MatMenuModule, MatBadgeModule, MatSidenavModule, MatListModule, MatTooltipModule, MatDividerModule, NgIf, AsyncPipe, NotificationPanelComponent],
   template: `
     <mat-sidenav-container class="sidenav-container">
       <mat-sidenav #sidenav mode="over" (closedStart)="onSidenavClose()" class="mobile-sidenav">
@@ -138,9 +139,16 @@ import { NotificationService } from '../../services/notification.service';
                 <mat-icon>search</mat-icon>
               </a>
 
-              <button mat-icon-button *ngIf="authService.isLoggedIn()" [matTooltip]="'Notifications'" [matBadge]="(notificationService.unreadCount$ | async) || 0" matBadgeColor="warn" matBadgeSize="small" (click)="toggleNotifications()">
-                <mat-icon>notifications</mat-icon>
-              </button>
+              <!-- Notification bell with dropdown panel -->
+              <div class="notif-wrapper" *ngIf="authService.isLoggedIn()">
+                <button mat-icon-button [matTooltip]="'Notifications'" [matBadge]="(notificationService.unreadCount$ | async) || 0" matBadgeColor="warn" matBadgeSize="small" (click)="toggleNotifications($event)">
+                  <mat-icon>notifications</mat-icon>
+                </button>
+                <app-notification-panel
+                  [isOpen]="showNotifications"
+                  (close)="showNotifications = false"
+                ></app-notification-panel>
+              </div>
 
               <ng-container *ngIf="authService.isLoggedIn(); else loginBtn">
                 <button mat-icon-button [matMenuTriggerFor]="userMenu">
@@ -209,6 +217,7 @@ import { NotificationService } from '../../services/notification.service';
     .header-actions { display: flex; align-items: center; gap: 4px; }
     .login-btn { color: white !important; border: 1px solid rgba(255,255,255,0.5) !important; margin-right: 8px; }
     .register-btn { background: white !important; color: var(--primary) !important; }
+    .notif-wrapper { position: relative; }
     @media (max-width: 768px) {
       .nav-links { display: none; }
       .brand-text { display: none; }
@@ -223,13 +232,16 @@ export class HeaderComponent {
   notificationService = inject(NotificationService);
   private router = inject(Router);
 
+  showNotifications = false;
+
   logout() {
     this.authService.logout();
     this.router.navigate(['/home']);
   }
 
-  toggleNotifications() {
-    this.router.navigate(['/notifications']);
+  toggleNotifications(event: Event) {
+    event.stopPropagation();
+    this.showNotifications = !this.showNotifications;
   }
 
   onSidenavClose() {

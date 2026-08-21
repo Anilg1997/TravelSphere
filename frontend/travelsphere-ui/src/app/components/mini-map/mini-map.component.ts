@@ -632,7 +632,9 @@ export class MiniMapComponent implements OnInit, AfterViewInit, OnDestroy {
           this.searchRadius = radius;
         }
       }
-    } catch {}
+    } catch {
+      // Ignore corrupted localStorage data
+    }
   }
 
   private saveRadius() {
@@ -796,7 +798,9 @@ export class MiniMapComponent implements OnInit, AfterViewInit, OnDestroy {
           this.dragPos = pos;
         }
       }
-    } catch {}
+    } catch {
+      // Ignore corrupted localStorage data
+    }
   }
 
   private savePosition() {
